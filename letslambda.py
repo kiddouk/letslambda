@@ -38,7 +38,7 @@ def load_config(bucket):
     conf = yaml.load(confString)
     return conf
 
-def loadAccountKey(bucket):
+def loadAccountKey(bucket, conf):
     """
     Try to load the RSA account key from S3. If it doesn't
     succeed, it will create a new account key and try a registration
@@ -155,7 +155,6 @@ def answer_dns_challenge(client, domain, challenge):
     challenge_resource = client.answer_challenge(challenge, challenge_response)
 
     # We'd better poll to get the answer of this.
-    LOG.debug(challenge_resource)
 
 def generateCSR(bucket, conf):
     if 'reuse_key' in conf:
@@ -169,7 +168,6 @@ def generateCSR(bucket, conf):
     csr.get_subject().CN = conf['name']
     csr.set_pubkey(key)
     csr.sign(key, "sha1")
-    LOG.debug(base64.urlsafe_b64encode(crypto.dump_certificate_request(crypto.FILETYPE_ASN1, csr)))
     return (csr, key)
 
 def requestCertificate(client, bucket, conf, auth_resource):
@@ -227,13 +225,11 @@ def createIAMCertificate(domain, certificate, key):
 
 def updateELB(conf, iam_certificate):
     LOG.info("Updating ELB with new certificate")
-    LOG.info(iam_certificate)
     elb_connection = elb.connect_to_region("eu-west-1")
     response = elb_connection.set_lb_listener_SSL_certificate(conf['elb'], 443, iam_certificate['upload_server_certificate_response']['upload_server_certificate_result']['server_certificate_metadata']['arn'])
     return response
 
 def lambda_handler(event, context):
-    LOG.info(event);
     bucket = event['bucket']
 
     LOG.info("Retrieving configuration file from bucket : {}".format(bucket))
@@ -246,7 +242,7 @@ def lambda_handler(event, context):
         exit(1)
 
     conf = load_config(bucket)
-    key = loadAccountKey(bucket)
+    key = loadAccountKey(bucket, conf)
     domain = conf['domains'][0]
 
     acme_client = client.Client(conf['directory'], key)
