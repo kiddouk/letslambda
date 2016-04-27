@@ -243,8 +243,8 @@ def lambda_handler(event, context):
 
     conf = load_config(bucket)
     key = loadAccountKey(bucket, conf)
+    acme_client = client.Client(conf['directory'], key)
     for domain in conf['domains']:
-        acme_client = client.Client(conf['directory'], key)
         authorization_resource = get_authorization(acme_client, domain)
         challenge = get_dns_challenge(authorization_resource)
         answer_dns_challenge(acme_client, domain, challenge)
