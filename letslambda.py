@@ -243,12 +243,11 @@ def lambda_handler(event, context):
 
     conf = load_config(bucket)
     key = loadAccountKey(bucket, conf)
-    domain = conf['domains'][0]
-
-    acme_client = client.Client(conf['directory'], key)
-    authorization_resource = get_authorization(acme_client, domain)
-    challenge = get_dns_challenge(authorization_resource)
-    answer_dns_challenge(acme_client, domain, challenge)
-    (certificate, key) = requestCertificate(acme_client, bucket, domain, authorization_resource)
-    iam_cert = createIAMCertificate(domain, certificate, key)
-    updateELB(domain, iam_cert)
+    for domain in conf['domains']:
+        acme_client = client.Client(conf['directory'], key)
+        authorization_resource = get_authorization(acme_client, domain)
+        challenge = get_dns_challenge(authorization_resource)
+        answer_dns_challenge(acme_client, domain, challenge)
+        (certificate, key) = requestCertificate(acme_client, bucket, domain, authorization_resource)
+        iam_cert = createIAMCertificate(domain, certificate, key)
+        updateELB(domain, iam_cert)
