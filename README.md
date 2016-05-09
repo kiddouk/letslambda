@@ -31,6 +31,18 @@ This is the tricky part. This project relies on third party projects that requir
     $> rm -rf .env
     $> zip -r letslambda.zip .
 
+If you're development environment is running on Debian Linux, you need the following commands:
+
+    $> apt-get install -V python-virtualenv python-pip libssl-dev python-dev libffi-dev
+    $> virtualenv .env
+    $> source .env/bin/activate
+    $> pip install -r requirements.txt
+    $> mv .env/lib/python2.7/site-packages/* .
+    $> mv .env/lib64/python2.7/site-packages/* .
+    $> mv .env/src/acme/acme/acme* .
+    $> rm -rf .env
+    $> zip -r letslambda.zip .
+
 Once this is done, all you have to do is to upload your lamnbda function to an S3 bucket.
 
     $> aws s3 cp letslambda.zip s3://bucket/
