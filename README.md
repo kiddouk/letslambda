@@ -31,7 +31,7 @@ This is the tricky part. This project relies on third party projects that reuire
     $> rm -rf .env
     $> zip -r letslambda.zip .
 
-Once this is done, alkl you have to do is to upload your lamnbda function to an S3 bucket.
+Once this is done, all you have to do is to upload your lamnbda function to an S3 bucket.
 
     $> aws s3 cp letslambda.zip s3://bucket/
 
