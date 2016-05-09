@@ -13,13 +13,13 @@ The configuration file is based on YAML. It should be easy to understand by revi
 
 `domains`: a list of domain information.
 
-  - `name`: this is used to configure endpoints, DNS, and CN for the certification
+ - `name`: this is used to configure endpoints, DNS, and CN for the certification
  - `countryName`: is used for countryName in the CSR
  - `reuse_key`: will try to reuse the same private key to generate the CSR. This is very useful if you ever want to use Public Key pinning in your mobile app and yet, want to renew your certificates every x months.
 
 ## Installation ##
 
-This is the tricky part. This project relies on third party projects that reuires some files to be compiled. Since AWS Lambda runs on Amazon Linux 64 bit, it is important that you have such instance running to prepare your Lambda function.
+This is the tricky part. This project relies on third party projects that requires some files to be compiled. Since AWS Lambda runs on Amazon Linux 64 bit, it is important that you have such instance running to prepare your Lambda function.
 
     $> yum install libcffi-devel libyaml-devel gcc openssl-devel git
     $> virtualenv .env
