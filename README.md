@@ -23,6 +23,7 @@ This is the tricky part. This project relies on third party projects that reuire
 
     $> yum install libcffi-devel libyaml-devel gcc openssl-devel git
     $> virtualenv .env
+    $> source .env/bin/activate
     $> pip install -r requirements.txt
     $> mv .env/lib/python2.7/site-packages/* .
     $> mv .env/lib64/python2.7/site-packages/* .
