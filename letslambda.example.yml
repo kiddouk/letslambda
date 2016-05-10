@@ -1,6 +1,6 @@
 directory: https://acme-v01.api.letsencrypt.org/directory
 info:
-  - mailto:sebastien@requiem.fr
+  - mailto:myemail@example.com
 domains:
   - name: example.com
     countryName: FR
