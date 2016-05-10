@@ -3,17 +3,11 @@
     "Description" : "A template for letslambda - 0.1",
     "Parameters": {
         "Bucket": {
-            "Description": "Bucket name (not arn)",
+            "Description": "S3 Bucket name (not arn)",
             "Type": "String"
         }
     },
-    "Mappings" : {
-        "Region2AZ" : {
-            "eu-west-1": { "AZs" : ["eu-west-1c"], "AZ1": "eu-west-1c", "ELBPrincipal": "156460612806" }
-        }
-    },
     "Resources" : {
-
         "LetsLambdaManagedPolicy": {
             "Type": "AWS::IAM::ManagedPolicy",
             "Properties": {
