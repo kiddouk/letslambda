@@ -251,7 +251,7 @@ def lambda_handler(event, context):
 
     conf = load_config(bucket)
     if conf == None:
-        LOG.error("Cannot file 'letslambda.yml' in S3 bucket '{0}".format(bucket))
+        LOG.error("Cannot find file 'letslambda.yml' in S3 bucket '{0}".format(bucket))
         exit(1)
 
     key = loadAccountKey(bucket, conf)
