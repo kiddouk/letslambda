@@ -33,7 +33,14 @@ handler.setFormatter(formatter)
 LOG.addHandler(handler)
 
 def load_config(bucket):
+    """
+    Try to load the letlambda.yml out of the user bucket
+    Will return None if the configuration file does not exist
+    """
     conf = bucket.get_key("letslambda.yml")
+    if conf == None:
+        return None
+
     confString = conf.read()
     conf = yaml.load(confString)
     return conf
@@ -233,7 +240,7 @@ def lambda_handler(event, context):
     bucket = event['bucket']
     region = event['region']
 
-    LOG.info("Retrieving configuration file from bucket : {0} {1} ".format(bucket, region))
+    LOG.info("Retrieving configuration file from bucket '{0}' in region '{1}' ".format(bucket, region))
     connection = s3.connect_to_region(region, calling_format=OrdinaryCallingFormat())
     try:
         bucket = connection.get_bucket(bucket);
@@ -243,6 +250,10 @@ def lambda_handler(event, context):
         exit(1)
 
     conf = load_config(bucket)
+    if conf == None:
+        LOG.error("Cannot file 'letslambda.yml' in S3 bucket '{0}".format(bucket))
+        exit(1)
+
     key = loadAccountKey(bucket, conf)
     acme_client = client.Client(conf['directory'], key)
     for domain in conf['domains']:
