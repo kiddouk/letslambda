@@ -1,12 +1,16 @@
 {
     "AWSTemplateFormatVersion" : "2010-09-09",
     "Description" : "A template for letslambda - 0.1",
-    "Parameters": {
+    "Parameters": [{
         "Bucket": {
             "Description": "S3 Bucket name (not arn)",
             "Type": "String"
-        }
-    },
+        },
+	"Region": {
+            "Description": "Region short code name where the S3 bucket is located (ie: eu-west-1)",
+            "Type": "String"
+	}
+    }],
     "Resources" : {
         "LetsLambdaManagedPolicy": {
             "Type": "AWS::IAM::ManagedPolicy",
@@ -94,7 +98,7 @@
                 "Targets" : [ {
                     "Arn": {"Fn::GetAtt": ["LetsLambdaFunction", "Arn"]},
                     "Id": "LetsLambdaTarget",
-                    "Input": {"Fn::Join": ["", ["{\"bucket\": \"", {"Ref": "Bucket"}, "\"}"]]}
+                    "Input": {"Fn::Join": ["", ["{\"bucket\": \"", {"Ref": "Bucket"}, ", \"region\": \"", {"Ref": "Region"}, "\"}"]]}
                 } ]
             }
         }

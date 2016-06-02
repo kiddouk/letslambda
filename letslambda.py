@@ -231,9 +231,10 @@ def updateELB(conf, iam_certificate):
 
 def lambda_handler(event, context):
     bucket = event['bucket']
+    region = event['region']
 
-    LOG.info("Retrieving configuration file from bucket : {}".format(bucket))
-    connection = s3.connect_to_region("eu-west-1", calling_format=OrdinaryCallingFormat())
+    LOG.info("Retrieving configuration file from bucket : {0} {1} ".format(bucket, region))
+    connection = s3.connect_to_region(region, calling_format=OrdinaryCallingFormat())
     try:
         bucket = connection.get_bucket(bucket);
     except S3ResponseError as e:
