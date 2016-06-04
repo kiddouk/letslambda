@@ -9,33 +9,69 @@
 	"Region": {
             "Description": "Region short code name where the S3 bucket is located (ie: eu-west-1)",
             "Type": "String"
-	}
+	},
+        "KmsEncryptionKeyArn": {
+            "Description": "KMS Encryption Key ARN used to securely encrypt and decrypt",
+            "Type": "String"
+        }
     },
     "Resources" : {
+        "LetsLambdaKmsKeyManagedPolicy": {
+            "Type": "AWS::IAM::ManagedPolicy",
+            "Properties": {
+                "Description" : "Allow lambda and selected EC2 instances to access the letslambda KMS key",
+                "Path" : "/",
+                "PolicyDocument" : {
+                    "Version":"2012-10-17",
+                    "Statement" : [
+                        {
+                            "Effect" : "Allow",
+                            "Action" : [
+                                "kms:Decrypt",
+                                "kms:DescribeKey",
+                                "kms:Encrypt",
+                                "kms:GenerateDataKey"
+                            ],
+                            "Resource" : [ {"Ref": "KmsEncryptionKeyArn"} ]
+                        }
+                    ]
+                }
+            }
+        },
+        "LetsLambdaS3ManagedPolicy": {
+            "Type": "AWS::IAM::ManagedPolicy",
+            "Properties": {
+                "Description" : "Allow lambda and selected EC2 instances to access the letslambda KMS key",
+                "Path" : "/",
+                "PolicyDocument" : {
+                    "Version":"2012-10-17",
+                    "Statement" : [
+                        {
+                            "Effect" : "Allow",
+                            "Action" : [
+                                "s3:putObject",
+                                "s3:getObject",
+                                "s3:ListBucket"
+                            ],
+                            "Resource" : [
+                                {"Fn::Join": ["", ["arn:aws:s3:::", {"Ref": "Bucket"}]]},
+                                {"Fn::Join": ["", ["arn:aws:s3:::", {"Ref": "Bucket"}, "/*"]]}
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
         "LetsLambdaManagedPolicy": {
             "Type": "AWS::IAM::ManagedPolicy",
             "Properties": {
                 "Description" : "Allow lambda to access bucket, r53 and elb",
                 "Path" : "/",
                 "PolicyDocument" : {
-                    "Version":"2012-10-17", 
+                    "Version":"2012-10-17",
                     "Statement" : [
                         {
-                            "Effect" : "Allow",           
-                            "Action" : [
-                                "s3:putObject",
-                                "s3:getObject",
-                                "s3:ListBucket"
-                                
-                            ],
-                            "Resource" : [
-                                {"Fn::Join": ["", ["arn:aws:s3:::", {"Ref": "Bucket"}]]},
-                                {"Fn::Join": ["", ["arn:aws:s3:::", {"Ref": "Bucket"}, "/*"]]}
-
-                            ]
-                        },
-                        {
-                            "Effect" : "Allow",           
+                            "Effect" : "Allow",
                             "Action" : [
                                 "logs:CreateLogGroup",
                                 "logs:CreateLogStream",
@@ -58,7 +94,11 @@
         "LambdaExecutionRole": {
             "Type": "AWS::IAM::Role",
             "Properties": {
-                "ManagedPolicyArns": [ {"Ref": "LetsLambdaManagedPolicy"} ],
+                "ManagedPolicyArns": [
+                    {"Ref": "LetsLambdaManagedPolicy"},
+                    {"Ref": "LetsLambdaS3ManagedPolicy"},
+                    {"Ref": "LetsLambdaKmsKeyManagedPolicy"}
+                ],
                 "AssumeRolePolicyDocument": {
                     "Version": "2012-10-17",
                     "Statement": [
@@ -104,6 +144,5 @@
         }
     },
     "Outputs": {
-        
     }
 }
