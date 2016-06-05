@@ -3,6 +3,7 @@ info:
   - mailto:myemail@example.com
 domains:
   - name: example.com
+    r53_zone: example.com
     countryName: FR
     elb: lb_name
     elb_region: eu-west-1

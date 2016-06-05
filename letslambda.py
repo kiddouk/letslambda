@@ -167,11 +167,10 @@ def answer_dns_challenge(client, domain, challenge):
     dns_response = base64.urlsafe_b64encode(hashlib.sha256(authorization.encode()).digest()).decode("ascii").replace("=", "")
 
     # Let's update the DNS on our R53 account
-    top_level = ".".join(domain['name'].split(".")[-2:])
     r53 = route53.connect_to_region(exec_region)
-    zone = r53.get_zone(top_level)
+    zone = r53.get_zone(domain['r53_zone'])
     if zone == None:
-        LOG.error("Cannot find R53 zone {}, are you controling it ?".format(top_level))
+        LOG.error("Cannot find R53 zone {}, are you controling it ?".format(domain['r53_zone']))
         exit(1)
 
     acme_domain = "_acme-challenge.{}".format(domain['name'])
