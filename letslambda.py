@@ -23,6 +23,10 @@ from OpenSSL import crypto
 from datetime import datetime
 from boto.ec2 import elb
 from acme.jose.util import ComparableX509
+import os
+
+# this is the AWS region in which the function runs in
+exec_region = os.environ['AWS_DEFAULT_REGION']
 
 LOG = logging.getLogger("letslambda")
 LOG.setLevel(logging.DEBUG)
@@ -164,7 +168,7 @@ def answer_dns_challenge(client, domain, challenge):
 
     # Let's update the DNS on our R53 account
     top_level = ".".join(domain['name'].split(".")[-2:])
-    r53 = route53.connect_to_region("eu-west-1")
+    r53 = route53.connect_to_region(exec_region)
     zone = r53.get_zone(top_level)
     if zone == None:
         LOG.error("Cannot find R53 zone {}, are you controling it ?".format(top_level))
@@ -244,7 +248,7 @@ def createIAMCertificate(domain, certificate, key):
     if chain.status_code == 200:
         chain_certificate = crypto.load_certificate(crypto.FILETYPE_ASN1, chain.content)
 
-    iam_connection = iam.connect_to_region("eu-west-1")
+    iam_connection = iam.connect_to_region(exec_region)
     res = iam_connection.upload_server_cert(
         domain['name'] + "-" + datetime.utcnow().strftime("%Y-%m-%dT%H-%M"),
         crypto.dump_certificate(crypto.FILETYPE_PEM, certificate.body.wrapped).decode("ascii"),
@@ -257,7 +261,7 @@ def createIAMCertificate(domain, certificate, key):
 
 def updateELB(conf, iam_certificate):
     LOG.info("Updating ELB with new certificate")
-    elb_connection = elb.connect_to_region("eu-west-1")
+    elb_connection = elb.connect_to_region(conf['elb_region'])
     response = elb_connection.set_lb_listener_SSL_certificate(conf['elb'], 443, iam_certificate['upload_server_certificate_response']['upload_server_certificate_result']['server_certificate_metadata']['arn'])
     return response
 
