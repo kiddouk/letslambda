@@ -4,6 +4,6 @@ info:
 domains:
   - name: example.com
     countryName: FR
-    elb: ELB-1371YCZNGB8L2
+    elb: lb_name
     elb_region: eu-west-1
     reuse_key: true
