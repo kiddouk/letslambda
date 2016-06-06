@@ -21,6 +21,10 @@ from OpenSSL import crypto
 from datetime import datetime
 from boto.ec2 import elb
 from acme.jose.util import ComparableX509
+import os
+
+# this is the AWS region in which the function runs in
+exec_region = os.environ['AWS_DEFAULT_REGION']
 
 LOG = logging.getLogger("letslambda")
 LOG.setLevel(logging.DEBUG)
@@ -33,7 +37,14 @@ handler.setFormatter(formatter)
 LOG.addHandler(handler)
 
 def load_config(bucket):
+    """
+    Try to load the letlambda.yml out of the user bucket
+    Will return None if the configuration file does not exist
+    """
     conf = bucket.get_key("letslambda.yml")
+    if conf == None:
+        return None
+
     confString = conf.read()
     conf = yaml.load(confString)
     return conf
@@ -131,11 +142,10 @@ def answer_dns_challenge(client, domain, challenge):
     dns_response = base64.urlsafe_b64encode(hashlib.sha256(authorization.encode()).digest()).decode("ascii").replace("=", "")
 
     # Let's update the DNS on our R53 account
-    top_level = ".".join(domain['name'].split(".")[-2:])
-    r53 = route53.connect_to_region("eu-west-1")
-    zone = r53.get_zone(top_level)
+    r53 = route53.connect_to_region(exec_region)
+    zone = r53.get_zone(domain['r53_zone'])
     if zone == None:
-        LOG.error("Cannot find R53 zone {}, are you controling it ?".format(top_level))
+        LOG.error("Cannot find R53 zone {}, are you controling it ?".format(domain['r53_zone']))
         exit(1)
 
     acme_domain = "_acme-challenge.{}".format(domain['name'])
@@ -212,7 +222,7 @@ def createIAMCertificate(domain, certificate, key):
     if chain.status_code == 200:
         chain_certificate = crypto.load_certificate(crypto.FILETYPE_ASN1, chain.content)
 
-    iam_connection = iam.connect_to_region("eu-west-1")
+    iam_connection = iam.connect_to_region(exec_region)
     res = iam_connection.upload_server_cert(
         domain['name'] + "-" + datetime.utcnow().strftime("%Y-%m-%dT%H-%M"),
         crypto.dump_certificate(crypto.FILETYPE_PEM, certificate.body.wrapped).decode("ascii"),
@@ -225,15 +235,16 @@ def createIAMCertificate(domain, certificate, key):
 
 def updateELB(conf, iam_certificate):
     LOG.info("Updating ELB with new certificate")
-    elb_connection = elb.connect_to_region("eu-west-1")
+    elb_connection = elb.connect_to_region(conf['elb_region'])
     response = elb_connection.set_lb_listener_SSL_certificate(conf['elb'], 443, iam_certificate['upload_server_certificate_response']['upload_server_certificate_result']['server_certificate_metadata']['arn'])
     return response
 
 def lambda_handler(event, context):
     bucket = event['bucket']
+    region = event['region']
 
-    LOG.info("Retrieving configuration file from bucket : {}".format(bucket))
-    connection = s3.connect_to_region("eu-west-1", calling_format=OrdinaryCallingFormat())
+    LOG.info("Retrieving configuration file from bucket '{0}' in region '{1}' ".format(bucket, region))
+    connection = s3.connect_to_region(region, calling_format=OrdinaryCallingFormat())
     try:
         bucket = connection.get_bucket(bucket);
     except S3ResponseError as e:
@@ -242,6 +253,10 @@ def lambda_handler(event, context):
         exit(1)
 
     conf = load_config(bucket)
+    if conf == None:
+        LOG.error("Cannot find file 'letslambda.yml' in S3 bucket '{0}".format(bucket))
+        exit(1)
+
     key = loadAccountKey(bucket, conf)
     acme_client = client.Client(conf['directory'], key)
     for domain in conf['domains']:

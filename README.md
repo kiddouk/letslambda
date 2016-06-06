@@ -14,8 +14,11 @@ The configuration file is based on YAML. It should be easy to understand by revi
 `domains`: a list of domain information.
 
  - `name`: this is used to configure endpoints, DNS, and CN for the certification
+ - `r53_zone`: the route53 hosted zone name
  - `countryName`: is used for countryName in the CSR
- - `reuse_key`: will try to reuse the same private key to generate the CSR. This is very useful if you ever want to use Public Key pinning in your mobile app and yet, want to renew your certificates every x months.
+ - `elb`: name of your Elastic Load Balancer name
+ - `elb_region` the region is which your elb has been deployed in
+ - `reuse_key`: will try to reuse the same private key to generate the CSR. This is very useful if you ever want to use Public Key pinning in your mobile app and yet, want to renew your certificates every x months
 
 ## Installation ##
 
