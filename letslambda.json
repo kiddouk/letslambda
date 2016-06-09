@@ -16,6 +16,26 @@
         }
     },
     "Resources" : {
+        "DenyUnEncryptedPrivKeyUploadsBucketPolicy" : {
+            "Type" : "AWS::S3::BucketPolicy",
+            "Properties" : {
+                "Bucket" : {"Ref" : "Bucket"},
+                "PolicyDocument": {
+                    "Statement":[{
+                        "Sid": "DenyUnEncryptedPrivKeyUploads",
+                        "Action": ["s3:PutObject"],
+                        "Effect": "Deny",
+                        "Resource": { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "Bucket" } , "/*.key.pem" ]]},
+                        "Principal": "*",
+                        "Condition": {
+                            "Null": {
+                                "s3:x-amz-server-side-encryption": "true"
+                            }
+                        }
+                    }]
+                }
+            }
+        },
         "LetsLambdaKmsKeyManagedPolicy": {
             "Type": "AWS::IAM::ManagedPolicy",
             "Properties": {
