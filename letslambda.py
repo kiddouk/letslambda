@@ -52,11 +52,14 @@ def load_config(bucket):
     conf = yaml.load(confString)
     return conf
 
-def loadAccountKey(bucket, conf):
+def load_letsencrypt_account_key(bucket, conf):
     """
     Try to load the RSA account key from S3. If it doesn't
     succeed, it will create a new account key and try a registration
     with your provided information
+    The letsenrypt account key is needed to avoid redoing the Proof of
+    Possession challenge (PoP). It is also used to revoke an existing
+    certificate.
     """
     LOG.info("Loading account key from s3")
     key = bucket.get_key("account.key.rsa")
@@ -272,7 +275,7 @@ def lambda_handler(event, context):
         LOG.error("Cannot find file 'letslambda.yml' in S3 bucket '{0}".format(bucket))
         exit(1)
 
-    key = loadAccountKey(bucket, conf)
+    key = load_letsencrypt_account_key(bucket, conf)
     acme_client = client.Client(conf['directory'], key)
     for domain in conf['domains']:
         authorization_resource = get_authorization(acme_client, domain)
