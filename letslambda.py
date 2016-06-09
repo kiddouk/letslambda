@@ -251,7 +251,6 @@ def lambda_handler(event, context):
     try:
         bucket = connection.get_bucket(bucket);
     except S3ResponseError as e:
-        print(e)
         LOG.error("Cannot fetch bucket : {}".format(bucket))
         exit(1)
 
