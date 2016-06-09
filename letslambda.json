@@ -11,9 +11,12 @@
             "Type": "String"
 	},
         "KmsEncryptionKeyArn": {
-            "Description": "KMS Encryption Key ARN used to securely encrypt and decrypt",
+            "Description": "Default KMS Encryption Key (arn) used to securely store your SSL private keys. Use 'AES256' for S3 automatic encryption",
             "Type": "String"
         }
+    },
+    "Conditions": {
+        "KmsArnProvided": {"Fn::Not": [{"Fn::Equals": [{"Ref": "KmsEncryptionKeyArn"}, "AES256"]}]}
     },
     "Resources" : {
         "DenyUnEncryptedPrivKeyUploadsBucketPolicy" : {
@@ -53,7 +56,12 @@
                                 "kms:GenerateDataKey*",
                                 "kms:ReEncrypt*"
                             ],
-                            "Resource" : [ {"Ref": "KmsEncryptionKeyArn"} ]
+                            "Resource" : [
+                                {"Fn::If": [ "KmsArnProvided",
+                                    {"Ref": "KmsEncryptionKeyArn"},
+                                    {"Fn::Join": ["", ["arn:aws:kms:", {"Ref": "AWS::Region"}, ":", {"Ref": "AWS::AccountId"}, ":key/12345678-1234-1234-1234-123456789012"]]}
+                                ]}
+                            ]
                         }
                     ]
                 }
@@ -159,7 +167,7 @@
                 "Targets" : [ {
                     "Arn": {"Fn::GetAtt": ["LetsLambdaFunction", "Arn"]},
                     "Id": "LetsLambdaTarget",
-                    "Input": {"Fn::Join": ["", ["{\"bucket\": \"", {"Ref": "Bucket"}, ", \"region\": \"", {"Ref": "Region"}, "\"}"]]}
+                    "Input": {"Fn::Join": ["", ["{\"bucket\": \"", {"Ref": "Bucket"}, ", \"region\": \"", {"Ref": "Region"}, ", \"defaultkey\": \"", {"Ref": "KmsEncryptionKeyArn"}, "\"}"]]}
                 } ]
             }
         }
