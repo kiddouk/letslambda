@@ -30,7 +30,8 @@
                                 "kms:Decrypt",
                                 "kms:DescribeKey",
                                 "kms:Encrypt",
-                                "kms:GenerateDataKey"
+                                "kms:GenerateDataKey*",
+                                "kms:ReEncrypt*"
                             ],
                             "Resource" : [ {"Ref": "KmsEncryptionKeyArn"} ]
                         }
