@@ -260,9 +260,9 @@ def lambda_handler(event, context):
         kms_key = event['defaultkey']
 
     LOG.info("Retrieving configuration file from bucket '{0}' in region '{1}' ".format(bucket, region))
-    connection = s3.connect_to_region(region, calling_format=OrdinaryCallingFormat())
+    s3_connection = s3.connect_to_region(s3_region, calling_format=OrdinaryCallingFormat())
     try:
-        bucket = connection.get_bucket(bucket);
+        bucket = s3_connection.get_bucket(bucket);
     except S3ResponseError as e:
         LOG.error("Cannot fetch bucket : {}".format(bucket))
         exit(1)
