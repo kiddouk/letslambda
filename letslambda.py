@@ -62,10 +62,10 @@ def load_letsencrypt_account_key(bucket, conf):
     certificate.
     """
     LOG.info("Loading account key from s3")
-    key = bucket.get_key("account.key.rsa")
+    key = bucket.get_key("account.key.pem")
     newAccountNeeded = False;
     if key == None:
-        pem = createAndSaveKey(bucket, "account.key.rsa")
+        pem = createAndSaveKey(bucket, "account.key.pem")
         newAccountNeeded = True
     else:
         pem = key.read()
@@ -81,7 +81,7 @@ def loadCSRKey(bucket, domain):
     key = None
     if 'reuse_key' in domain.keys() and domain['reuse_key'] == True:
         LOG.info("Attempting to reuse old key for domain")
-        name = domain['name'] + ".key.rsa"
+        name = domain['name'] + ".key.pem"
         key = bucket.get_key(name)
 
     if key == None:
