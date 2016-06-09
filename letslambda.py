@@ -243,8 +243,21 @@ def updateELB(conf, iam_certificate):
     return response
 
 def lambda_handler(event, context):
-    bucket = event['bucket']
-    region = event['region']
+    if 'bucket' not in event:
+        LOG.error("No bucket name has been provided. Exiting.")
+        exit(1)
+    s3_bucket = event['bucket']
+
+    if 'region' not in event:
+        LOG.error("No bucket region has been provided. Exiting.")
+        exit(1)
+    s3_region = event['region']
+
+    if 'defaultkey' not in event:
+        LOG.info("No default KMS key provided, defaulting to 'AES256'.")
+        kms_key = 'AES256'
+    else:
+        kms_key = event['defaultkey']
 
     LOG.info("Retrieving configuration file from bucket '{0}' in region '{1}' ".format(bucket, region))
     connection = s3.connect_to_region(region, calling_format=OrdinaryCallingFormat())
