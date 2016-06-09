@@ -67,10 +67,10 @@
                 }
             }
         },
-        "LetsLambdaS3ManagedPolicy": {
+        "LetsLambdaS3WriteManagedPolicy": {
             "Type": "AWS::IAM::ManagedPolicy",
             "Properties": {
-                "Description" : "Allow lambda and selected EC2 instances to access the letslambda KMS key",
+                "Description" : "Allow lambda to save cryptographic material into user selected S3 bucket",
                 "Path" : "/",
                 "PolicyDocument" : {
                     "Version":"2012-10-17",
@@ -78,7 +78,27 @@
                         {
                             "Effect" : "Allow",
                             "Action" : [
-                                "s3:putObject",
+                                "s3:putObject"
+                            ],
+                            "Resource" : [
+                                {"Fn::Join": ["", ["arn:aws:s3:::", {"Ref": "Bucket"}, "/*"]]}
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "LetsLambdaS3ReadManagedPolicy": {
+            "Type": "AWS::IAM::ManagedPolicy",
+            "Properties": {
+                "Description" : "Allow lambda and selected EC2 instances to access cryptographic material",
+                "Path" : "/",
+                "PolicyDocument" : {
+                    "Version":"2012-10-17",
+                    "Statement" : [
+                        {
+                            "Effect" : "Allow",
+                            "Action" : [
                                 "s3:getObject",
                                 "s3:ListBucket"
                             ],
@@ -94,7 +114,7 @@
         "LetsLambdaManagedPolicy": {
             "Type": "AWS::IAM::ManagedPolicy",
             "Properties": {
-                "Description" : "Allow lambda to access bucket, r53 and elb",
+                "Description" : "Allow lambda to access Route53, ELB and IAM services",
                 "Path" : "/",
                 "PolicyDocument" : {
                     "Version":"2012-10-17",
@@ -125,7 +145,8 @@
             "Properties": {
                 "ManagedPolicyArns": [
                     {"Ref": "LetsLambdaManagedPolicy"},
-                    {"Ref": "LetsLambdaS3ManagedPolicy"},
+                    {"Ref": "LetsLambdaS3WriteManagedPolicy"},
+                    {"Ref": "LetsLambdaS3ReadManagedPolicy"},
                     {"Ref": "LetsLambdaKmsKeyManagedPolicy"}
                 ],
                 "AssumeRolePolicyDocument": {
