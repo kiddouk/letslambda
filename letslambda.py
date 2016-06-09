@@ -65,7 +65,7 @@ def load_letsencrypt_account_key(bucket, conf):
     key = bucket.get_key("account.key.pem")
     newAccountNeeded = False;
     if key == None:
-        pem = createAndSaveKey(bucket, "account.key.pem")
+        pem = create_and_save_key(bucket, "account.key.pem")
         newAccountNeeded = True
     else:
         pem = key.read()
@@ -85,7 +85,7 @@ def loadCSRKey(bucket, domain):
         key = bucket.get_key(name)
 
     if key == None:
-        pem = createAndSaveKey(bucket, name)
+        pem = create_and_save_key(bucket, name)
     else:
         pem = key.read()
 
@@ -104,7 +104,7 @@ def registerNewAccount(conf, key):
     LOG.info("Agreeing on the TOS on your behalf")
     acme_client.agree_to_tos(registration_resource)
 
-def createAndSaveKey(bucket, name):
+def create_and_save_key(bucket, name):
     """
     Generate an RSA 4096 key for general purpose (account or CSR)
     """
