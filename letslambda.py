@@ -14,7 +14,6 @@ import logging
 from acme import client
 from acme import messages
 from acme import challenges
-import io
 import requests
 import base64
 import hashlib
@@ -108,8 +107,8 @@ def create_and_save_key(bucket, name):
     """
     Generate an RSA 4096 key for general purpose (account or CSR)
     """
-    LOG.info("Key not found! Generating new RSA key")
-    key = RSA.generate(4096);
+    LOG.info("Generating new RSA key")
+    key = RSA.generate(4096).exportKey("PEM")
     saveToS3(bucket, key, name)
     return key.exportKey("PEM")
 
@@ -119,8 +118,7 @@ def saveToS3(bucket, rsakey, name):
     """
     LOG.info("Storing newly generated key")
     s3key = Key(bucket=bucket, name=name)
-    fp = io.BytesIO(rsakey.exportKey("PEM"));
-    s3key.set_contents_from_file(fp)
+    s3key.set_contents_from_string(rsakey)
 
 def get_authorization(client, domain):
     authorization_resource = client.request_domain_challenges(domain['name'])
