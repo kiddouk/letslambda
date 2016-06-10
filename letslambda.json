@@ -98,7 +98,7 @@
                 "Targets" : [ {
                     "Arn": {"Fn::GetAtt": ["LetsLambdaFunction", "Arn"]},
                     "Id": "LetsLambdaTarget",
-                    "Input": {"Fn::Join": ["", ["{\"bucket\": \"", {"Ref": "Bucket"}, ", \"region\": \"", {"Ref": "Region"}, "\"}"]]}
+                    "Input": {"Fn::Join": ["", ["{\"bucket\": \"", {"Ref": "Bucket"}, "\", \"region\": \"", {"Ref": "Region"}, "\"}"]]}
                 } ]
             }
         }
