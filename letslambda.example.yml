@@ -1,4 +1,5 @@
 directory: https://acme-v01.api.letsencrypt.org/directory
+base_path: letslambda
 info:
   - mailto:myemail@example.com
 domains:
@@ -6,5 +7,6 @@ domains:
     r53_zone: example.com
     countryName: FR
     elb: lb_name
+    elb_port: 443
     elb_region: eu-west-1
     reuse_key: true
