@@ -15,7 +15,6 @@ from acme.jose.util import ComparableX509
 from botocore.config import Config
 from botocore.exceptions import ClientError
 from Crypto import Random
-from Crypto.Cipher import AES
 from Crypto.PublicKey import RSA
 from datetime import datetime
 from OpenSSL import crypto
