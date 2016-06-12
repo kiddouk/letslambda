@@ -491,10 +491,16 @@ def lambda_handler(event, context):
         exit(1)
     s3_bucket = event['bucket']
 
-    if 'region' not in event:
-        LOG.error("No bucket region has been provided. Exiting.")
+    if 'region' not in event.keys() and 'AWS_DEFAULT_REGION' not in os.environ.keys():
+        LOG.error("Unable to determine AWS region code. Exiting.")
         exit(1)
-    s3_region = event['region']
+    else:
+        if 'region' not in event.keys():
+            LOG.warning("Using local environment to determine AWS region code.")
+            s3_region = os.environ['AWS_DEFAULT_REGION']
+            LOG.warning("Local region set to '{0}'.".format(s3_region))
+        else:
+            s3_region = event['region']
 
     if 'defaultkey' not in event:
         LOG.info("No default KMS key provided, defaulting to 'AES256'.")
