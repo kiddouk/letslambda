@@ -467,7 +467,6 @@ def request_certificate(conf, domain, client, auth_resource):
     except errors.PollError as e:
         LOG.error("Failed to get certificate issuance for '{0}'.".format(domain['name']))
         LOG.error("Error: {0}".format(e))
-        print e
         return (False, False, False)
 
     chain = requests.get(certificate.cert_chain_uri)
