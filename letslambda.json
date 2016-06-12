@@ -6,10 +6,10 @@
             "Description": "S3 Bucket name (not arn)",
             "Type": "String"
         },
-	"Region": {
+        "Region": {
             "Description": "Region short code name where the S3 bucket is located (ie: eu-west-1)",
             "Type": "String"
-	},
+        },
         "KmsEncryptionKeyArn": {
             "Description": "Default KMS Encryption Key (arn) used to securely store your SSL private keys. Use 'AES256' for S3 automatic encryption",
             "Type": "String"
@@ -129,6 +129,7 @@
                                 "iam:DeleteServerCertificate",
                                 "iam:ListServerCertificates",
                                 "iam:UploadServerCertificate",
+                                "elasticloadbalancing:DescribeLoadBalancers",
                                 "elasticloadbalancing:SetLoadBalancerListenerSSLCertificate",
                                 "route53:GetChange",
                                 "route53:GetHostedZone",
