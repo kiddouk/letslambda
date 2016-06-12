@@ -191,7 +191,7 @@
                 "Targets" : [ {
                     "Arn": {"Fn::GetAtt": ["LetsLambdaFunction", "Arn"]},
                     "Id": "LetsLambdaTarget",
-                    "Input": {"Fn::Join": ["", ["{\"bucket\": \"", {"Ref": "Bucket"}, "\", \"region\": \"", {"Ref": "Region"}, ", \"defaultkey\": \"", {"Ref": "KmsEncryptionKeyArn"}, "\"}"]]}
+                    "Input": {"Fn::Join": ["", ["{\"bucket\": \"", {"Ref": "Bucket"}, "\", \"region\": \"", {"Ref": "Region"}, "\", \"defaultkey\": \"", {"Ref": "KmsEncryptionKeyArn"}, "\"}"]]}
                 } ]
             }
         }
