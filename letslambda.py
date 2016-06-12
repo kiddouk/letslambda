@@ -70,7 +70,7 @@ def load_letsencrypt_account_key(conf):
     Possession challenge (PoP). It is also used to revoke an existing
     certificate.
     """
-    LOG.info("Loading account key from s3")
+    LOG.debug("Loading account key from s3")
 
     newAccountNeeded = False
     account_key = load_from_s3(conf, 'account.key.pem')
@@ -131,7 +131,7 @@ def get_route53_zone_id(conf, zone_name):
             dn = zone_list['NextDNSName']
             zi = zone_list['NextHostedZoneId']
 
-            LOG.info("Continuing to fetch mode Route53 hosted zones...")
+            LOG.debug("Continuing to fetch mode Route53 hosted zones...")
             zone_list = r53.list_hosted_zones_by_name(DNSName=dn, HostedZoneId=zi)
 
     except ClientError as e:
@@ -191,7 +191,7 @@ def reset_route53_letsencrypt_record(conf, zone_id, zone_name, rr_fqdn):
 
             break
 
-    LOG.info("No Resource Record to delete.")
+    LOG.debug("No Resource Record to delete.")
     return False
 
 def create_route53_letsencrypt_record(conf, zone_id, zone_name, rr_fqdn, rr_type, rr_value):
@@ -250,7 +250,7 @@ def wait_letsencrypt_record_insync(conf, r53_status):
             LOG.error("Error: {0}".format(e))
             return None
 
-    LOG.info("Route53 synchronized in {0:d} seconds.".format(60-timeout))
+    LOG.debug("Route53 synchronized in {0:d} seconds.".format(60-timeout))
     return True
 
 def save_certificates_to_s3(conf, domain, chain_certificate, certificate):
@@ -323,10 +323,10 @@ def update_elb_server_certificate(conf, domain, server_certificate_arn):
             return False
 
     if timeout < 0:
-        LOG.info("Could not set server certificate '{0}' within 60 seconds on ELB '{1}:{2}' in region '{3}'.".format(server_certificate_arn, domain['elb'], domain['elb_port'], domain['elb_region']))
+        LOG.error("Could not set server certificate '{0}' within 60 seconds on ELB '{1}:{2}' in region '{3}'.".format(server_certificate_arn, domain['elb'], domain['elb_port'], domain['elb_region']))
         return False
 
-    LOG.info("Set server certificate '{0}' on ELB '{1}:{2}' in region '{3}' in {4} seconds.".format(
+    LOG.debug("Set server certificate '{0}' on ELB '{1}:{2}' in region '{3}' in {4} seconds.".format(
         server_certificate_arn,
         domain['elb'],
         domain['elb_port'],
@@ -408,7 +408,7 @@ def save_to_s3(conf, s3_key, content, encrypt=False, kms_key='AES256'):
     """
     Save the rsa key in PEM format to s3 .. for later use
     """
-    LOG.info("Saving object '{0}' to in 's3://{1}'".format(s3_key, conf['s3_bucket']))
+    LOG.debug("Saving object '{0}' to in 's3://{1}'".format(s3_key, conf['s3_bucket']))
     s3 = conf['s3_client']
     try:
         if encrypt == True:
@@ -440,7 +440,7 @@ def load_private_key(conf, domain):
     name = domain['name'] + ".key.pem"
 
     if 'reuse_key' in domain.keys() and domain['reuse_key'] == True:
-        LOG.info("Attempting to load private key from S3 for domain '{0}'".format(domain['name']))
+        LOG.debug("Attempting to load private key from S3 for domain '{0}'".format(domain['name']))
         key = load_from_s3(conf, name)
 
     if key == None:
@@ -487,12 +487,12 @@ def request_certificate(conf, domain, client, auth_resource):
 
 def lambda_handler(event, context):
     if 'bucket' not in event:
-        LOG.error("No bucket name has been provided. Exiting.")
+        LOG.critical("No bucket name has been provided. Exiting.")
         exit(1)
     s3_bucket = event['bucket']
 
     if 'region' not in event.keys() and 'AWS_DEFAULT_REGION' not in os.environ.keys():
-        LOG.error("Unable to determine AWS region code. Exiting.")
+        LOG.critical("Unable to determine AWS region code. Exiting.")
         exit(1)
     else:
         if 'region' not in event.keys():
@@ -503,7 +503,7 @@ def lambda_handler(event, context):
             s3_region = event['region']
 
     if 'defaultkey' not in event:
-        LOG.info("No default KMS key provided, defaulting to 'AES256'.")
+        LOG.warning("No default KMS key provided, defaulting to 'AES256'.")
         kms_key = 'AES256'
     else:
         LOG.info("Using {0} as default KMS key.".format(event['defaultkey']))
@@ -520,7 +520,7 @@ def lambda_handler(event, context):
 
     conf = load_config(s3_client, s3_bucket, letslambda_config)
     if conf == None:
-        LOG.error("Cannot load letslambda configuration. Exiting.")
+        LOG.critical("Cannot load letslambda configuration. Exiting.")
         exit(1)
 
     conf['region'] = os.environ['AWS_DEFAULT_REGION']
