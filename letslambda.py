@@ -72,7 +72,7 @@ def load_letsencrypt_account_key(conf):
     """
     LOG.info("Loading account key from s3")
 
-    newAccountNeeded = False;
+    newAccountNeeded = False
     account_key = load_from_s3(conf, 'account.key.pem')
     if account_key == None:
         account_key = create_and_save_key(conf, "account.key.pem", conf['kms_key'])
@@ -99,7 +99,7 @@ def register_new_account(conf, key):
 
 def get_authorization(client, domain):
     authorization_resource = client.request_domain_challenges(domain['name'])
-    return authorization_resource;
+    return authorization_resource
 
 def get_dns_challenge(authorization_resource):
     """
