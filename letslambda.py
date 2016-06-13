@@ -273,20 +273,17 @@ def upload_to_iam(conf, domain, chain_certificate, certificate, key):
 
     iam = boto3.client('iam', config=Config(signature_version='v4', region_name=conf['region']))
 
+    kwargs = {
+        'Path': '/',
+        'ServerCertificateName': domain['name'] + "-" + datetime.utcnow().strftime("%Y-%m-%dT%H-%M-%S"),
+        'CertificateBody': certificate,
+        'PrivateKey': key
+        }
     try:
-        if chain_certificate == False:
-            res = iam.upload_server_certificate(
-                Path='/',
-                ServerCertificateName=domain['name'] + "-" + datetime.utcnow().strftime("%Y-%m-%dT%H-%M-%S"),
-                CertificateBody=certificate,
-                PrivateKey=key)
-        else:
-            res = iam.upload_server_certificate(
-                Path='/',
-                ServerCertificateName=domain['name'] + "-" + datetime.utcnow().strftime("%Y-%m-%dT%H-%M-%S"),
-                CertificateBody=certificate,
-                PrivateKey=key,
-                CertificateChain=chain_certificate)
+        if chain_certificate is not False:
+            kwargs['CertificateChain'] = chain_certificate
+
+        res = iam.upload_server_certificate(**kwargs)
     except ClientError as e:
         LOG.error("Failed to upload certificate for domain '{0}'".format(domain['name']))
         LOG.error("Exception: {0}".format(e))
@@ -409,26 +406,21 @@ def save_to_s3(conf, s3_key, content, encrypt=False, kms_key='AES256'):
     """
     LOG.debug("Saving object '{0}' to in 's3://{1}'".format(s3_key, conf['s3_bucket']))
     s3 = conf['s3_client']
-    try:
-        if encrypt == True:
-            if  kms_key != 'AES256':
-                s3.put_object(Bucket=conf['s3_bucket'],
-                        Key=s3_key,
-                        Body=content,
-                        ACL='private',
-                        ServerSideEncryption='aws:kms',
-                        SSEKMSKeyId=kms_key)
-            else:
-                s3.put_object(Bucket=conf['s3_bucket'],
-                        Key=s3_key,
-                        Body=content,
-                        ACL='private',
-                        ServerSideEncryption='AES256')
+    kwargs = {
+        'Bucket': conf['s3_bucket'],
+        'Key': s3_key,
+        'Body': content,
+        'ACL': 'private'
+    }
+    if encrypt == True:
+        if  kms_key != 'AES256':
+            kwargs['ServerSideEncryption'] = 'aws:kms'
+            kwargs['SSEKMSKeyId'] = kms_key
         else:
-                s3.put_object(Bucket=conf['s3_bucket'],
-                        Key=s3_key,
-                        Body=content,
-                        ACL='private')
+            kwargs['ServerSideEncryption'] = 'AES256'
+
+    try:
+        s3.put_object(**kwargs);
     except ClientError as e:
         LOG.error("Failed to save '{0}' in bucket '{1}'".format(s3_key, conf['s3_bucket']))
         LOG.error("Error: {0}".format(e))
