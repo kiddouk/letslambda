@@ -28,7 +28,10 @@
                         "Sid": "DenyUnEncryptedPrivKeyUploads",
                         "Action": ["s3:PutObject"],
                         "Effect": "Deny",
-                        "Resource": { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "Bucket" } , "/*.key.pem" ]]},
+                        "Resource": [
+                            { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "Bucket" } , "/*.key.pem" ]]},
+                            { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "Bucket" } , "/*.key.rsa" ]]}
+                        ],
                         "Principal": "*",
                         "Condition": {
                             "Null": {

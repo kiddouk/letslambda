@@ -72,9 +72,9 @@ def load_letsencrypt_account_key(conf):
     LOG.debug("Loading account key from s3")
 
     newAccountNeeded = False
-    account_key = load_from_s3(conf, 'account.key.pem')
+    account_key = load_from_s3(conf, 'account.key.rsa')
     if account_key == None:
-        account_key = create_and_save_key(conf, "account.key.pem", conf['kms_key'])
+        account_key = create_and_save_key(conf, "account.key.rsa", conf['kms_key'])
         newAccountNeeded = True
 
     key = client.jose.JWKRSA.load(account_key)
@@ -428,7 +428,7 @@ def save_to_s3(conf, s3_key, content, encrypt=False, kms_key='AES256'):
 
 def load_private_key(conf, domain):
     key = None
-    name = domain['name'] + ".key.pem"
+    name = domain['name'] + ".key.rsa"
 
     if 'reuse_key' in domain.keys() and domain['reuse_key'] == True:
         LOG.debug("Attempting to load private key from S3 for domain '{0}'".format(domain['name']))
