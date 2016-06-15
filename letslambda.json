@@ -12,7 +12,8 @@
         },
         "KmsEncryptionKeyArn": {
             "Description": "Default KMS Encryption Key (arn) used to securely store your SSL private keys. Use 'AES256' for S3 automatic encryption",
-            "Type": "String"
+            "Type": "String",
+            "Default": "AES256"
         }
     },
     "Conditions": {
