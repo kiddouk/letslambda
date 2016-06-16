@@ -30,7 +30,7 @@ The configuration file is based on YAML. It should be easy to understand by revi
 
 ## Installation ##
 
-This project relies on third party projects that requires some files to be compiled. Since AWS Lambda runs on Amazon Linux 64 bit ([ref](http://docs.aws.amazon.com/lambda/latest/dg/current-supported-versions.html)), it's important that you have such instance running to prepare your Lambda function 8and not a custom debian/ubuntu server as you may find some libraries incompatibilities).
+This project relies on third party projects that requires some files to be compiled. Since AWS Lambda runs on Amazon Linux 64 bit ([ref](http://docs.aws.amazon.com/lambda/latest/dg/current-supported-versions.html)), it's important that you have such instance running to prepare your Lambda function. Note that nany other distribution may not be compatible with Lambda functions.
 
     $> yum install libcffi-devel libffi-devel libyaml-devel gcc openssl-devel git
     $> virtualenv .env
