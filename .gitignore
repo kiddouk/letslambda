@@ -4,3 +4,4 @@ src
 *.sw?
 *.pyc
 run.py
+.Python
